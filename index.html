@@ -97,6 +97,12 @@
     .live.finished .live-dot { background: #a4b4c9; animation: none; box-shadow: none; }
     @media (max-width: 360px) { .shell { padding-left: 14px; padding-right: 14px; } .timer-panel { padding-left: 11px; padding-right: 11px; } .digits { font-size: 43px; } .separator { font-size: 39px; } .now { padding: 15px 12px; } .now-time { font-size: 19px; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    .meme-screen { display:none; width:min(100%, 590px); margin:0 auto; text-align:center; }
+    .meme-screen img { display:block; width:100%; height:auto; max-height:calc(100dvh - 36px); object-fit:contain; border-radius:18px; box-shadow:0 16px 60px #0008; }
+    body.deadline-ended { display:flex; align-items:center; justify-content:center; }
+    body.deadline-ended .shell { width:100%; }
+    body.deadline-ended .topline, body.deadline-ended .center, body.deadline-ended .footer { display:none; }
+    body.deadline-ended .meme-screen { display:block; }
   </style>
 </head>
 <body>
@@ -141,12 +147,13 @@
       </div>
     </section>
     <footer class="footer"><strong>DEADLINE · 23:59:59</strong></footer>
+    <section class="meme-screen" aria-label="Deadline reached"><img src="deadline-meme.png" alt="DEADLINE REACHED — трейдер не успел ответить на вопросы" /></section>
   </main>
 
   <script>
     (() => {
       'use strict';
-      // 12.11.2026 в 23:59:59 в Сургуте (UTC+5) = 12.11.2026 18:59:00 UTC.
+      // 12.11.2026 в 23:59:59 в Сургуте (UTC+5) = 12.11.2026 18:59:59 UTC.
       // Цель абсолютна и не пересчитывается при смене дня.
       const TARGET_MS = Date.UTC(2026, 10, 12, 18, 59, 59);
       const START_MS = Date.UTC(2026, 10, 11, 19, 0, 0); // 00:00 12 ноября UTC+5
@@ -173,6 +180,7 @@
       function update() {
         const nowMs = Date.now();
         finished = nowMs >= TARGET_MS;
+        document.body.classList.toggle("deadline-ended", finished);
         const remainingSeconds = finished ? 0 : Math.ceil((TARGET_MS - nowMs) / 1000);
         const hh = Math.floor(remainingSeconds / 3600);
         const mm = Math.floor((remainingSeconds % 3600) / 60);
